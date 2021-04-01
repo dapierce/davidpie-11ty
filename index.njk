@@ -1,15 +1,20 @@
 ---
-title: Title. Update me.
+title: David Aaron Pierce
 layout: layouts/home.njk
-description: Description. Update me.
+description: Hi! I'm a web and software developer with a focus on user and accessibility.
 image: https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg
 date: Last Modified
 ---
 
 <p>
-  This is a demo website based on 
-  <a href="https://www.industrialempathy.com/posts/eleventy-high-performance-blog/">eleventy-high-performance-blog</a>.
+  Welcome! This is my personal website.
 </p>
+
+<div id="projects">
+  <h2>Projects</h2>
+  {% set projectlist = collections.projects %}
+  {% include "projectlist.njk" %}
+</div>
 
 <div id="posts">
   <h2>Posts</h2>

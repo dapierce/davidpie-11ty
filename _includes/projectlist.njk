@@ -1,0 +1,8 @@
+<ul>
+{% for project in projectlist | reverse %}
+  <li>
+    <a href="{{ project.url | url }}">{% if project.data.title %}{{ project.data.title }}{% else %}<code>{{ post.url }}</code>{% endif %}</a>
+    <time  datetime="{{ project.date | htmlDateString }}">{{ project.date | readableDate }}</time>
+  </li>
+{% endfor %}
+</ul>

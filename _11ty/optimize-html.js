@@ -49,10 +49,10 @@ const purifyCss = async (rawContent, outputPath) => {
       encoding: "utf-8",
     });
 
-    before = before.replace(
-      /@font-face {/g,
-      "@font-face {font-display:optional;"
-    );
+    // before = before.replace(
+    //   /@font-face {/g,
+    //   "@font-face {font-display:optional;"
+    // );
 
     const purged = await new PurgeCSS().purge({
       content: [

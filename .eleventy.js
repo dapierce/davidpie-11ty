@@ -54,7 +54,6 @@ const markdownIt = require("markdown-it");
 const markdownItAnchor = require("markdown-it-anchor");
 const localImages = require("./third_party/eleventy-plugin-local-images/.eleventy.js");
 const CleanCSS = require("clean-css");
-const GA_ID = require("./_data/metadata.json").googleAnalyticsId;
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginRss);
@@ -75,21 +74,21 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPlugin(require("./_11ty/apply-csp.js"));
   eleventyConfig.setDataDeepMerge(true);
   eleventyConfig.addLayoutAlias("post", "layouts/post.njk");
-  eleventyConfig.addNunjucksAsyncFilter("addHash", function (
-    absolutePath,
-    callback
-  ) {
-    readFile(`_site${absolutePath}`, {
-      encoding: "utf-8",
-    })
-      .then((content) => {
-        return hasha.async(content);
+  eleventyConfig.addNunjucksAsyncFilter(
+    "addHash",
+    function (absolutePath, callback) {
+      readFile(`_site${absolutePath}`, {
+        encoding: "utf-8",
       })
-      .then((hash) => {
-        callback(null, `${absolutePath}?hash=${hash.substr(0, 10)}`);
-      })
-      .catch((error) => callback(error));
-  });
+        .then((content) => {
+          return hasha.async(content);
+        })
+        .then((hash) => {
+          callback(null, `${absolutePath}?hash=${hash.substr(0, 10)}`);
+        })
+        .catch((error) => callback(error));
+    }
+  );
 
   async function lastModifiedDate(filename) {
     try {
@@ -110,22 +109,22 @@ module.exports = function (eleventyConfig) {
   // Cache the lastModifiedDate call because shelling out to git is expensive.
   // This means the lastModifiedDate will never change per single eleventy invocation.
   const lastModifiedDateCache = new Map();
-  eleventyConfig.addNunjucksAsyncFilter("lastModifiedDate", function (
-    filename,
-    callback
-  ) {
-    const call = (result) => {
-      result.then((date) => callback(null, date));
-      result.catch((error) => callback(error));
-    };
-    const cached = lastModifiedDateCache.get(filename);
-    if (cached) {
-      return call(cached);
+  eleventyConfig.addNunjucksAsyncFilter(
+    "lastModifiedDate",
+    function (filename, callback) {
+      const call = (result) => {
+        result.then((date) => callback(null, date));
+        result.catch((error) => callback(error));
+      };
+      const cached = lastModifiedDateCache.get(filename);
+      if (cached) {
+        return call(cached);
+      }
+      const promise = lastModifiedDate(filename);
+      lastModifiedDateCache.set(filename, promise);
+      call(promise);
     }
-    const promise = lastModifiedDate(filename);
-    lastModifiedDateCache.set(filename, promise);
-    call(promise);
-  });
+  );
 
   eleventyConfig.addFilter("encodeURIComponent", function (str) {
     return encodeURIComponent(str);
@@ -167,8 +166,6 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addPassthroughCopy("img");
   eleventyConfig.addPassthroughCopy("css");
-  // We need to copy cached.js only if GA is used
-  eleventyConfig.addPassthroughCopy(GA_ID ? "js" : "js/*[!cached].*");
   eleventyConfig.addPassthroughCopy("fonts");
   eleventyConfig.addPassthroughCopy("_headers");
 
@@ -188,7 +185,7 @@ module.exports = function (eleventyConfig) {
   }).use(markdownItAnchor, {
     permalink: true,
     permalinkClass: "direct-link",
-    permalinkSymbol: "#",
+    // permalinkSymbol: "#",
   });
   eleventyConfig.setLibrary("md", markdownLibrary);
 
